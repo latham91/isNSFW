@@ -1,5 +1,9 @@
 const express = require('express');
 const checkNSFW = require('./checkNsfw'); // Import the function
+const dotenv = require('dotenv');
+
+// Load environment variables from .env file
+dotenv.config();
 
 const app = express();
 const port = 3010;
@@ -27,7 +31,11 @@ app.get("/api/health", (req, res) => {
 // Check for nsfw images
 app.post("/api/nsfw", (req, res) => {
     try {
-        const { imgURLs } = req.body;
+        const { imgURLs, apiKey } = req.body;
+        // Validate API key
+        if (!apiKey || apiKey !== process.env.SECRET) {
+            return res.status(401).json({ success: false, message: "Unauthorized" });
+        }
         
         // Check if imgURLs is provided
         if (!imgURLs) {
