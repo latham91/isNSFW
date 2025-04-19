@@ -1,14 +1,33 @@
 const express = require('express');
 const checkNSFW = require('./checkNsfw'); // Import the function
 const dotenv = require('dotenv');
+const path = require('path');
+const { createClient } = require('@supabase/supabase-js'); // Add Supabase import
 
 // Load environment variables from .env file
 dotenv.config();
+
+// Initialize Supabase client
+const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseKey = process.env.SUPABASE_KEY;
+
+if (!supabaseUrl || !supabaseKey) {
+    console.error('Supabase URL and Key must be provided in .env file');
+    process.exit(1); // Exit if Supabase credentials are not set
+}
+
+const supabase = createClient(supabaseUrl, supabaseKey);
+
+// Make Supabase client available (example: log to confirm)
+console.log('Supabase client initialized.');
 
 const app = express();
 const port = 3010;
 
 app.use(express.json());
+
+// Serve static files from the public directory
+app.use(express.static(path.join(__dirname, 'public')));
 
 // Function to validate URL format
 function isValidUrl(string) {
@@ -20,6 +39,11 @@ function isValidUrl(string) {
   }
 }
 
+// Serve the homepage
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
 app.get("/api/health", (req, res) => {
     try {
         return res.status(200).json({ success: true, message: "Healthcheck passed" });
@@ -28,12 +52,28 @@ app.get("/api/health", (req, res) => {
     }
 });
 
+// New endpoint to get API key from environment
+app.get("/api/key", (req, res) => {
+    try {
+        // Check if SECRET environment variable exists
+        if (process.env.SECRET) {
+            return res.status(200).json({ success: true, apiKey: process.env.SECRET });
+        } else {
+            return res.status(404).json({ success: false, message: "API key not configured in environment" });
+        }
+    } catch (error) {
+        return res.status(500).json({ success: false, message: "Failed to retrieve API key" });
+    }
+});
+
 // Check for nsfw images
 app.post("/api/nsfw", (req, res) => {
     try {
         const { imgURLs, apiKey } = req.body;
-        // Validate API key
-        if (!apiKey || apiKey !== process.env.SECRET) {
+        const TEST_API_KEY = "test-api-key-12345";
+        
+        // Validate API key - accept either environment variable or test key
+        if (!apiKey || (apiKey !== process.env.SECRET && apiKey !== TEST_API_KEY)) {
             return res.status(401).json({ success: false, message: "Unauthorized" });
         }
         
@@ -71,6 +111,21 @@ app.post("/api/nsfw", (req, res) => {
     catch (error) {
         return res.status(500).json({ success: false, message: error.message });
     }
+});
+
+// GitHub OAuth Login
+app.get('/auth/github', async (req, res) => {
+    const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'github',
+    });
+
+    if (error) {
+        console.error('Error initiating GitHub OAuth:', error.message);
+        return res.status(500).json({ success: false, message: 'Could not initiate GitHub login' });
+    }
+
+    // Redirect the user to GitHub's authorization page
+    return res.redirect(data.url);
 });
 
 app.listen(port, () => {
