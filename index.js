@@ -52,20 +52,6 @@ app.get("/api/health", (req, res) => {
     }
 });
 
-// New endpoint to get API key from environment
-app.get("/api/key", (req, res) => {
-    try {
-        // Check if SECRET environment variable exists
-        if (process.env.SECRET) {
-            return res.status(200).json({ success: true, apiKey: process.env.SECRET });
-        } else {
-            return res.status(404).json({ success: false, message: "API key not configured in environment" });
-        }
-    } catch (error) {
-        return res.status(500).json({ success: false, message: "Failed to retrieve API key" });
-    }
-});
-
 // Check for nsfw images
 app.post("/api/nsfw", (req, res) => {
     try {
@@ -111,33 +97,4 @@ app.post("/api/nsfw", (req, res) => {
     catch (error) {
         return res.status(500).json({ success: false, message: error.message });
     }
-});
-
-/* // Remove the backend GitHub OAuth route - It's now handled client-side
-// GitHub OAuth Login 
-app.get('/auth/github', async (req, res) => {
-    const { data, error } = await supabase.auth.signInWithOAuth({
-        provider: 'github',
-    });
-
-    if (error) {
-        console.error('Error initiating GitHub OAuth:', error.message);
-        return res.status(500).json({ success: false, message: 'Could not initiate GitHub login' });
-    }
-
-    // Redirect the user to GitHub's authorization page
-    return res.redirect(data.url);
-});
-*/
-
-// Endpoint to provide public Supabase config to the frontend
-app.get('/api/supabase-config', (req, res) => {
-    res.json({
-        url: process.env.SUPABASE_URL,
-        key: process.env.SUPABASE_KEY // This is the public anon key
-    });
-});
-
-app.listen(port, () => {
-    console.log(`Server is running at http://localhost:${port}`);
 });
