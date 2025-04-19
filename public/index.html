@@ -6,6 +6,7 @@
     <title>NSFW Image Detection API</title>
     <link rel="stylesheet" href="styles.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   </head>
   <body>
     <nav class="navbar">
@@ -19,6 +20,9 @@
           <a href="https://github.com" class="nav-link" target="_blank">GitHub</a>
           <a href="/auth/github" class="nav-link login-btn">
             <i class="fab fa-github"></i> Login
+          </a>
+          <a href="#" class="nav-link logout-btn" id="logout-btn" style="display: none;">
+            <i class="fas fa-sign-out-alt"></i> Logout
           </a>
           <div class="theme-toggle" id="themeToggle">
             <i class="fas fa-sun theme-toggle-icon" id="themeIcon"></i>

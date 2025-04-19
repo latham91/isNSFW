@@ -128,6 +128,14 @@ app.get('/auth/github', async (req, res) => {
     return res.redirect(data.url);
 });
 
+// Endpoint to provide public Supabase config to the frontend
+app.get('/api/supabase-config', (req, res) => {
+    res.json({
+        url: process.env.SUPABASE_URL,
+        key: process.env.SUPABASE_KEY // This is the public anon key
+    });
+});
+
 app.listen(port, () => {
     console.log(`Server is running at http://localhost:${port}`);
 });
