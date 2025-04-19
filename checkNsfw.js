@@ -8,7 +8,7 @@ async function checkSingleImage(imgURL) {
     const pic = await axios.get(imgURL, {
       responseType: "arraybuffer",
     });
-    const model = await nsfw.load("MobileNetV2");
+    const model = await nsfw.load("InceptionV3");
     const image = await tf.node.decodeImage(pic.data, 3);
     const predictions = await model.classify(image);
 
