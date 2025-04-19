@@ -81,10 +81,29 @@ function updateUIForGuest() {
     const loginButton = document.querySelector('.login-btn');
     const logoutButton = document.getElementById('logout-btn');
 
-    if (loginButton) loginButton.style.display = 'block'; // Or 'inline-flex'
     if (logoutButton) logoutButton.style.display = 'none';
-    // No need to remove listener, just hide the button
+    if (loginButton) {
+        loginButton.style.display = 'block'; // Or 'inline-flex'
 
+        // Add event listener for frontend-initiated login
+        // Ensure Supabase client is initialized before adding listener
+        if (supabase && !loginButton.dataset.listenerAttached) { 
+            loginButton.addEventListener('click', async (e) => {
+                e.preventDefault();
+                console.log('Login button clicked, initiating GitHub OAuth...');
+                const { error } = await supabase.auth.signInWithOAuth({
+                    provider: 'github',
+                    options: {
+                        redirectTo: window.location.origin // Redirect back to the current page after login
+                    }
+                });
+                if (error) {
+                    console.error('Error initiating GitHub OAuth:', error);
+                }
+            });
+            loginButton.dataset.listenerAttached = 'true'; // Mark listener as attached
+        }
+    }
     // Add code here to remove user info if it exists
 }
 

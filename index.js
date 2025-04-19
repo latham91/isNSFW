@@ -113,7 +113,8 @@ app.post("/api/nsfw", (req, res) => {
     }
 });
 
-// GitHub OAuth Login
+/* // Remove the backend GitHub OAuth route - It's now handled client-side
+// GitHub OAuth Login 
 app.get('/auth/github', async (req, res) => {
     const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'github',
@@ -127,6 +128,7 @@ app.get('/auth/github', async (req, res) => {
     // Redirect the user to GitHub's authorization page
     return res.redirect(data.url);
 });
+*/
 
 // Endpoint to provide public Supabase config to the frontend
 app.get('/api/supabase-config', (req, res) => {
