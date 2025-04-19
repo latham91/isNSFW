@@ -35,16 +35,19 @@ app.get("/api/health", (req, res) => {
 // Check for nsfw images
 app.post("/api/nsfw", (req, res) => {
     try {
+        console.log("Received /api/nsfw request");
         const { imgURLs, apiKey } = req.body;
         const TEST_API_KEY = "test-api-key-12345";
         
         // Validate API key - accept either environment variable or test key
         if (!apiKey || (apiKey !== process.env.SECRET && apiKey !== TEST_API_KEY)) {
+            console.log("Unauthorized API key attempt");
             return res.status(401).json({ success: false, message: "Unauthorized" });
         }
         
         // Check if imgURLs is provided
         if (!imgURLs) {
+            console.log("Missing imgURLs");
             return res.status(400).json({ success: false, message: "Image URLs are required" });
         }
         
@@ -53,12 +56,14 @@ app.post("/api/nsfw", (req, res) => {
         
         // Validate that we have at least one URL
         if (urlArray.length === 0) {
+            console.log("Empty urlArray");
             return res.status(400).json({ success: false, message: "At least one image URL is required" });
         }
         
         // Validate URL formats
         const invalidUrls = urlArray.filter(url => !isValidUrl(url));
         if (invalidUrls.length > 0) {
+            console.log("Invalid URLs found:", invalidUrls);
             return res.status(400).json({ 
                 success: false, 
                 message: "Invalid URL format", 
@@ -66,15 +71,19 @@ app.post("/api/nsfw", (req, res) => {
             });
         }
         
+        console.log(`Checking ${urlArray.length} images:`, urlArray);
         checkNSFW(urlArray)
             .then((result) => {
+                console.log("checkNSFW successful:", result);
                 return res.status(200).json({ success: true, ...result });
             })
             .catch((error) => {
+                console.error("checkNSFW error:", error.message);
                 return res.status(500).json({ success: false, message: error.message });
             });
     }
     catch (error) {
+        console.error("General /api/nsfw error:", error.message);
         return res.status(500).json({ success: false, message: error.message });
     }
 });
