@@ -2,24 +2,9 @@ const express = require('express');
 const checkNSFW = require('./checkNsfw'); // Import the function
 const dotenv = require('dotenv');
 const path = require('path');
-const { createClient } = require('@supabase/supabase-js'); // Add Supabase import
 
 // Load environment variables from .env file
 dotenv.config();
-
-// Initialize Supabase client
-const supabaseUrl = process.env.SUPABASE_URL;
-const supabaseKey = process.env.SUPABASE_KEY;
-
-if (!supabaseUrl || !supabaseKey) {
-    console.error('Supabase URL and Key must be provided in .env file');
-    process.exit(1); // Exit if Supabase credentials are not set
-}
-
-const supabase = createClient(supabaseUrl, supabaseKey);
-
-// Make Supabase client available (example: log to confirm)
-console.log('Supabase client initialized.');
 
 const app = express();
 const port = 3010;
@@ -38,11 +23,6 @@ function isValidUrl(string) {
     return false;
   }
 }
-
-// Serve the homepage
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
 
 app.get("/api/health", (req, res) => {
     try {
@@ -98,3 +78,7 @@ app.post("/api/nsfw", (req, res) => {
         return res.status(500).json({ success: false, message: error.message });
     }
 });
+
+app.listen(port, () => {
+    console.log(`isNSFW api running on http://localhost:${port}`)
+})
